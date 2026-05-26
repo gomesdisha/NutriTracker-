@@ -1,0 +1,14 @@
+{
+  "name": "nutritracker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "NutriTracker - Nutrition Monitoring System for Anganwadi Children (MERN)",
+  "scripts": {
+    "dev": "npm run dev:backend && npm run dev:frontend",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "seed": "npm --prefix backend run seed"
+  }
+}
+
