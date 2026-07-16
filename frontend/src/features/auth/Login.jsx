@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthContext.jsx";
+import { Mail, Lock, Activity, ShieldAlert } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
@@ -41,90 +42,108 @@ export default function Login() {
   }
 
   return (
-    <div className="container py-5" style={{ maxWidth: 980 }}>
-      <div className="row g-3 align-items-stretch">
-        <div className="col-12 col-lg-6">
-          <div className="card nt-card h-100">
-            <div className="card-body">
-              <h4 className="mb-1">NutriTracker</h4>
-              <div className="text-muted mb-3">
-                Nutrition Monitoring System for Anganwadi Children
-              </div>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center py-5 px-3" style={{ background: "radial-gradient(circle at top left, #e8f5e9 0%, #edf2f7 60%, #edf4ee 100%)" }}>
+      <div className="container" style={{ maxWidth: 940 }}>
+        <div className="row g-4 align-items-stretch">
+          
+          {/* Info Card */}
+          <div className="col-12 col-lg-6">
+            <div className="card nt-card nt-glass-card h-100 p-3 border-0 shadow-lg">
+              <div className="card-body d-flex flex-column justify-content-between">
+                <div>
+                  <span className="navbar-brand fw-extrabold fs-3 text-teal-800 d-flex align-items-center gap-2 mb-2">
+                    <Activity className="text-success animate-pulse" size={28} />
+                    NutriTracker
+                  </span>
+                  <div className="text-teal-900 fw-medium small mb-4">
+                    Anganwadi Nutrition Monitoring Portal
+                  </div>
+                  <p className="small text-slate-600 mb-4" style={{ lineHeight: "1.6" }}>
+                    Welcome to the central portal for child growth tracking. Use role-based accounts to register children, record weight/height, track status, and monitor alerts.
+                  </p>
+                </div>
 
-              <div className="small nt-muted mb-3">
-                Use role-based accounts to register children, record height/weight, visualize growth trends,
-                and generate malnutrition alerts for supervisors.
-              </div>
-
-              <div className="border rounded-3 p-3 bg-light">
-                <div className="fw-semibold mb-2">Demo accounts (1-click fill)</div>
-                <div className="d-flex flex-wrap gap-2">
-                  <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => fillDemo("ADMIN")}>
-                    Admin
-                  </button>
-                  <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => fillDemo("WORKER")}>
-                    Worker
-                  </button>
-                  <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => fillDemo("SUPERVISOR")}>
-                    Supervisor
-                  </button>
+                <div className="p-3 rounded-3 bg-white shadow-sm border border-light mt-auto">
+                  <div className="fw-semibold text-slate-800 small mb-2 d-flex align-items-center gap-1">
+                    <ShieldAlert size={15} className="text-teal-600" />
+                    Quick-Access Demo Portals
+                  </div>
+                  <div className="d-flex flex-wrap gap-2">
+                    <button type="button" className="btn btn-sm btn-outline-primary" style={{ borderRadius: "6px" }} onClick={() => fillDemo("ADMIN")}>
+                      Admin Account
+                    </button>
+                    <button type="button" className="btn btn-sm btn-outline-primary" style={{ borderRadius: "6px" }} onClick={() => fillDemo("WORKER")}>
+                      Worker Portal
+                    </button>
+                    <button type="button" className="btn btn-sm btn-outline-primary" style={{ borderRadius: "6px" }} onClick={() => fillDemo("SUPERVISOR")}>
+                      Supervisor Portal
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-12 col-lg-6">
-          <div className="card nt-card h-100">
-            <div className="card-body">
-              <h5 className="mb-1">Sign in</h5>
-              <div className="text-muted mb-4">Enter your credentials</div>
+          {/* Form Card */}
+          <div className="col-12 col-lg-6">
+            <div className="card nt-card h-100 p-3 border-0 shadow-lg">
+              <div className="card-body d-flex flex-column justify-content-center">
+                <h4 className="fw-bold text-slate-900 mb-1">Sign In</h4>
+                <div className="text-muted small mb-4">Enter your credentials below</div>
 
-              {error && <div className="alert alert-danger py-2">{error}</div>}
+                {error && <div className="alert alert-danger py-2 small">{error}</div>}
 
-              <form onSubmit={onSubmit} className="d-grid gap-3">
-                <div>
-                  <label className="form-label">Email</label>
-                  <input
-                    className="form-control"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@nutri.local"
-                    autoComplete="username"
-                    required
-                  />
+                <form onSubmit={onSubmit} className="d-grid gap-3">
+                  <div>
+                    <label className="form-label small fw-semibold text-slate-700">Email Address</label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-end-0 text-muted">
+                        <Mail size={16} />
+                      </span>
+                      <input
+                        className="form-control border-start-0 ps-0"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="admin@nutri.local"
+                        autoComplete="username"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="form-label small fw-semibold text-slate-700">Security Password</label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-end-0 text-muted">
+                        <Lock size={16} />
+                      </span>
+                      <input
+                        className="form-control border-start-0 ps-0"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button className="btn btn-primary mt-2 py-2 fw-semibold" disabled={loading}>
+                    {loading ? "Verifying Credentials..." : "Access Dashboard"}
+                  </button>
+                </form>
+
+                <div className="d-flex align-items-center justify-content-between mt-4 pt-3 border-top">
+                  <span className="small text-muted">New Anganwadi worker?</span>
+                  <Link to="/signup" className="btn btn-sm btn-outline-secondary" style={{ borderRadius: "6px" }}>
+                    Create Account
+                  </Link>
                 </div>
-
-                <div>
-                  <label className="form-label">Password</label>
-                  <input
-                    className="form-control"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                    required
-                  />
-                </div>
-
-                <button className="btn btn-primary" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign in"}
-                </button>
-              </form>
-
-              <div className="d-flex align-items-center justify-content-between mt-3">
-                <div className="small text-muted">New Worker?</div>
-                <Link to="/signup" className="btn btn-sm btn-outline-primary">
-                  Create account
-                </Link>
-              </div>
-
-              <div className="small text-muted mt-3">
-                If you haven’t seeded users yet, run `npm run seed` in the project root.
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

@@ -85,7 +85,7 @@ export default function WorkerDashboard() {
                         <StatusBadge status={c.latestStatus} />
                       </td>
                       <td className="text-end">
-                        <Link className="btn btn-sm btn-outline-primary" to={`/worker/children/${c._id}`}>
+                        <Link className="btn btn-sm btn-outline-primary" to={`/children/${c._id}`}>
                           View
                         </Link>
                       </td>

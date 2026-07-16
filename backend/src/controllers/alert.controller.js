@@ -2,17 +2,19 @@ import Alert from "../models/Alert.js";
 
 function applyScopeFilter(req, filter) {
   if (req.user.role === "ADMIN") return filter;
+  if (req.user.role === "WORKER") return { ...filter, centerId: req.user.centerId };
   if (req.user.role === "SUPERVISOR" && req.user.centerId) return { ...filter, centerId: req.user.centerId };
   return filter;
 }
 
 export async function listAlerts(req, res) {
-  const { status, type, centerId } = req.query;
+  const { status, type, centerId, childId } = req.query;
 
   let filter = {};
   if (status) filter.status = status;
   if (type) filter.type = type;
   if (centerId) filter.centerId = centerId;
+  if (childId) filter.childId = childId;
 
   filter = applyScopeFilter(req, filter);
 

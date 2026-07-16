@@ -8,3 +8,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Ignore test and temporary scripts
+backend/src/scripts/test_*
+backend/src/scripts/check_growth_entries.js
+scratch/
+.agents/

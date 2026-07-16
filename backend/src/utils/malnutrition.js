@@ -46,19 +46,84 @@ function interpolateCutoff(ageMonths) {
   };
 }
 
-export function classifyGrowth({ dob, measuredAt, weightKg }) {
+function interpolateHeightCutoff(ageMonths) {
+  // Reference cutoffs for height-for-age (cm)
+  const pts = [
+    { m: 0, severe: 42.0, moderate: 45.0 },
+    { m: 6, severe: 58.0, moderate: 61.0 },
+    { m: 12, severe: 67.0, moderate: 70.0 },
+    { m: 24, severe: 76.0, moderate: 80.0 },
+    { m: 36, severe: 84.0, moderate: 88.0 },
+    { m: 48, severe: 91.0, moderate: 96.0 },
+    { m: 60, severe: 97.0, moderate: 103.0 }
+  ];
+  if (ageMonths <= pts[0].m) return pts[0];
+  if (ageMonths >= pts[pts.length - 1].m) return pts[pts.length - 1];
+
+  let i = 0;
+  while (i < pts.length - 1 && !(ageMonths >= pts[i].m && ageMonths <= pts[i + 1].m)) i++;
+
+  const left = pts[i];
+  const right = pts[i + 1];
+  const t = (ageMonths - left.m) / (right.m - left.m);
+
+  return {
+    m: ageMonths,
+    severe: lerp(left.severe, right.severe, t),
+    moderate: lerp(left.moderate, right.moderate, t)
+  };
+}
+
+export function classifyGrowth({ dob, measuredAt, weightKg, heightCm }) {
   const ageMonths = monthsBetween(dob, measuredAt);
-  const cutoff = interpolateCutoff(ageMonths);
+  const weightCutoff = interpolateCutoff(ageMonths);
+  const heightCutoff = interpolateHeightCutoff(ageMonths);
 
   const reasons = [];
-  let status = "NORMAL";
+  let isSevere = false;
+  let isModerate = false;
 
-  if (weightKg < cutoff.severe) {
-    status = "SEVERE";
-    reasons.push(`Weight below severe cutoff for age (~${cutoff.severe.toFixed(1)}kg)`);
-  } else if (weightKg < cutoff.moderate) {
-    status = "MODERATE";
-    reasons.push(`Weight below moderate cutoff for age (~${cutoff.moderate.toFixed(1)}kg)`);
+  // 1. Underweight classification (Weight-for-Age)
+  if (weightKg < weightCutoff.severe) {
+    isSevere = true;
+    reasons.push("Severe Underweight");
+  } else if (weightKg < weightCutoff.moderate) {
+    isModerate = true;
+    reasons.push("Underweight");
+  }
+
+  // 2. Stunting classification (Height-for-Age)
+  if (heightCm) {
+    if (heightCm < heightCutoff.severe) {
+      isSevere = true;
+      reasons.push("Severe Stunting");
+    } else if (heightCm < heightCutoff.moderate) {
+      isModerate = true;
+      reasons.push("Stunting");
+    }
+  }
+
+  // 3. Wasting & Overweight classification (Weight-for-Height / BMI)
+  if (weightKg && heightCm) {
+    const bmi = weightKg / Math.pow(heightCm / 100, 2);
+    if (bmi < 11.5) {
+      isSevere = true;
+      reasons.push("Severe Wasting");
+    } else if (bmi < 13.0) {
+      isModerate = true;
+      reasons.push("Wasting");
+    } else if (bmi > 18.0) {
+      isModerate = true;
+      reasons.push("Overweight");
+    }
+  }
+
+  let status = "NORMAL";
+  if (isSevere) status = "SEVERE";
+  else if (isModerate) status = "MODERATE";
+
+  if (reasons.length === 0) {
+    reasons.push("Healthy / Normal Growth");
   }
 
   return { status, reasons, ageMonths };

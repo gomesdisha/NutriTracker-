@@ -41,6 +41,7 @@ export default function Sidebar() {
               <Item to="/supervisor/alerts" label="Alerts" />
             </>
           )}
+          <Item to="/food-guide" label="Food Guide" />
         </div>
       </div>
 
@@ -75,6 +76,7 @@ export default function Sidebar() {
                 <Item to="/supervisor/alerts" label="Alerts" />
               </>
             )}
+            <Item to="/food-guide" label="Food Guide" />
           </div>
         </div>
       </div>

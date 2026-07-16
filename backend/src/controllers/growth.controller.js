@@ -30,7 +30,8 @@ export async function addGrowthEntry(req, res) {
   const { status, reasons, ageMonths } = classifyGrowth({
     dob: child.dob,
     measuredAt,
-    weightKg
+    weightKg,
+    heightCm
   });
 
   const entry = await GrowthEntry.create({
