@@ -15,7 +15,8 @@ router.get("/search", requireAuth, async (req, res, next) => {
       `https://calorieapiadmin.com/api/v1/search/foods?q=${encodeURIComponent(q.trim())}`,
       {
         headers: {
-          "X-API-Key": apiKey
+          "X-API-Key": apiKey,
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
       }
     );
