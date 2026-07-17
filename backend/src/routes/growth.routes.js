@@ -1,6 +1,6 @@
 import express from "express";
 import { z } from "zod";
-import { addGrowthEntry, listChildGrowth } from "../controllers/growth.controller.js";
+import { addGrowthEntry, listChildGrowth, deleteGrowthEntry } from "../controllers/growth.controller.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 import { validateBody } from "../middleware/validate.js";
 
@@ -15,6 +15,8 @@ const growthCreateSchema = z.object({
 
 router.post("/", requireAuth, requireRole("WORKER", "ADMIN"), validateBody(growthCreateSchema), addGrowthEntry);
 router.get("/child/:childId", requireAuth, requireRole("WORKER", "SUPERVISOR", "ADMIN"), listChildGrowth);
+router.delete("/:id", requireAuth, requireRole("WORKER", "ADMIN"), deleteGrowthEntry);
 
 export default router;
+
 

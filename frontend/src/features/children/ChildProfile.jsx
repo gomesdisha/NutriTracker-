@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../api/axios.js";
 import { useAuth } from "../../app/AuthContext.jsx";
+import { Trash2 } from "lucide-react";
 import GrowthCharts from "../growth/GrowthCharts.jsx";
 
 function StatusBadge({ status }) {
@@ -139,6 +140,17 @@ export default function ChildProfile() {
       await load();
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to resolve alert");
+    }
+  }
+
+  async function deleteGrowthEntry(entryId) {
+    if (!window.confirm("Are you sure you want to delete this growth measurement?")) return;
+    setError("");
+    try {
+      await axios.delete(`/growth/${entryId}`);
+      await load();
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to delete growth entry");
     }
   }
 
@@ -442,6 +454,7 @@ export default function ChildProfile() {
                   <th>Age (Months)</th>
                   <th>Status</th>
                   <th>WHO Growth Indicators</th>
+                  <th className="text-center print-no-show">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -454,7 +467,7 @@ export default function ChildProfile() {
                     <td>
                       <StatusBadge status={h.status} />
                     </td>
-                    <td>
+                     <td>
                       <div className="d-flex flex-wrap gap-1">
                         {(h.reasons || []).map((reason, idx) => (
                           <span key={idx} className={`badge ${reason.includes("Normal") || reason.includes("Healthy") ? "bg-success" : "bg-warning text-dark"}`} style={{ fontSize: "0.7rem" }}>
@@ -463,11 +476,23 @@ export default function ChildProfile() {
                         ))}
                       </div>
                     </td>
+                    <td className="text-center print-no-show">
+                      {(user.role === "WORKER" || user.role === "ADMIN") && (
+                        <button
+                          className="btn btn-sm btn-outline-danger p-1"
+                          onClick={() => deleteGrowthEntry(h._id)}
+                          title="Delete this measurement"
+                          style={{ borderRadius: "4px", lineHeight: "1" }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 {history.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-muted py-4 text-center">
+                    <td colSpan={7} className="text-muted py-4 text-center">
                       No measurements recorded yet.
                     </td>
                   </tr>

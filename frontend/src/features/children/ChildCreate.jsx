@@ -57,7 +57,7 @@ export default function ChildCreate() {
         }
       };
       const { data } = await axios.post("/children", payload);
-      navigate(`/worker/children/${data.child._id}`);
+      navigate(`/children/${data.child._id}`);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to register child");
     } finally {

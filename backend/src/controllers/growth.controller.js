@@ -104,3 +104,42 @@ export async function listChildGrowth(req, res) {
   return res.json({ child, history });
 }
 
+export async function deleteGrowthEntry(req, res) {
+  const { id } = req.params;
+
+  const entry = await GrowthEntry.findById(id);
+  if (!entry) return res.status(404).json({ message: "Growth entry not found" });
+
+  const child = await Child.findById(entry.childId);
+  if (!child) return res.status(404).json({ message: "Child not found" });
+
+  // Permissions check
+  if (req.user.role === "WORKER" && String(req.user.centerId) !== String(child.centerId)) {
+    return res.status(403).json({ message: "Forbidden: out of center scope" });
+  }
+
+  // Delete the entry
+  await GrowthEntry.findByIdAndDelete(id);
+
+  // Delete associated alerts for this growth entry
+  await Alert.deleteMany({ growthEntryId: id });
+
+  // Find the new latest entry
+  const remaining = await GrowthEntry.find({ childId: child._id })
+    .sort({ measuredAt: -1 })
+    .limit(1)
+    .lean();
+
+  if (remaining.length > 0) {
+    child.latestStatus = remaining[0].status;
+    child.latestMeasuredAt = remaining[0].measuredAt;
+  } else {
+    child.latestStatus = "NORMAL";
+    child.latestMeasuredAt = null;
+  }
+  await child.save();
+
+  return res.json({ message: "Growth entry deleted successfully" });
+}
+
+
