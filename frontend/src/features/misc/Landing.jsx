@@ -98,7 +98,7 @@ export default function Landing() {
       <section className="bg-white border-top py-4 px-3 px-lg-5">
         <div className="container-fluid d-flex flex-wrap justify-content-between align-items-center gap-3">
           <div className="text-muted small">
-            Designed for FSD Projects & Portfolio Reviews
+            Designed by Disha Gomes
           </div>
           <div className="d-flex align-items-center gap-4">
             <span className="small text-muted d-flex align-items-center gap-1">
