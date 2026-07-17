@@ -7,7 +7,13 @@ import GrowthCharts from "../growth/GrowthCharts.jsx";
 
 function StatusBadge({ status }) {
   const cls =
-    status === "SEVERE" ? "bg-danger" : status === "MODERATE" ? "bg-warning text-dark" : "bg-success";
+    status === "SEVERE"
+      ? "bg-danger"
+      : status === "MODERATE"
+      ? "bg-warning text-dark"
+      : status === "PENDING_SYNC"
+      ? "bg-info text-white"
+      : "bg-success";
   return <span className={`badge ${cls}`}>{status || "NORMAL"}</span>;
 }
 
@@ -33,6 +39,12 @@ export default function ChildProfile() {
     weightKg: ""
   });
 
+  function calculateAgeMonths(dobDate, measuredAtDateStr) {
+    const a = new Date(dobDate);
+    const b = new Date(measuredAtDateStr);
+    return Math.max(0, (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()));
+  }
+
   async function load() {
     setError("");
     try {
@@ -44,8 +56,39 @@ export default function ChildProfile() {
       setChild(c.data.child);
       setHistory(g.data.history || []);
       setAlerts(a.data.alerts || []);
+
+      // Cache profile data locally
+      localStorage.setItem(`nutritracker_cached_profile_${id}`, JSON.stringify({
+        child: c.data.child,
+        history: g.data.history || [],
+        alerts: a.data.alerts || []
+      }));
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load child profile");
+      const cached = localStorage.getItem(`nutritracker_cached_profile_${id}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setChild(parsed.child);
+        
+        // Find local unsynced entries for this child
+        const queue = JSON.parse(localStorage.getItem("nutritracker_offline_queue") || "[]");
+        const childOfflineEntries = queue.filter(item => String(item.childId) === String(id));
+        
+        const localMapped = childOfflineEntries.map((item, idx) => ({
+          _id: `offline_${idx}_${Date.now()}`,
+          childId: item.childId,
+          measuredAt: item.measuredAt,
+          heightCm: item.heightCm,
+          weightKg: item.weightKg,
+          ageMonths: calculateAgeMonths(parsed.child.dob, item.measuredAt),
+          status: "PENDING_SYNC",
+          reasons: ["Queued to sync"]
+        }));
+
+        setHistory([...parsed.history, ...localMapped]);
+        setAlerts(parsed.alerts);
+      } else {
+        setError(err?.response?.data?.message || "Failed to load child profile");
+      }
     }
   }
 
@@ -236,6 +279,21 @@ export default function ChildProfile() {
       setOfflineQueueLength(queue.length);
       setEntry((s) => ({ ...s, heightCm: "", weightKg: "" }));
       setSaving(false);
+
+      // Append to local state immediately so user sees the addition
+      if (child) {
+        const localMapped = {
+          _id: `offline_temp_${Date.now()}`,
+          childId: id,
+          measuredAt: newEntry.measuredAt,
+          heightCm: newEntry.heightCm,
+          weightKg: newEntry.weightKg,
+          ageMonths: calculateAgeMonths(child.dob, newEntry.measuredAt),
+          status: "PENDING_SYNC",
+          reasons: ["Queued to sync"]
+        };
+        setHistory((prev) => [...prev, localMapped]);
+      }
       return;
     }
 

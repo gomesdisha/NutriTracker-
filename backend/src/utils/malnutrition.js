@@ -137,6 +137,10 @@ export function shouldAlertNoImprovement(last3EntriesSortedAsc) {
   if (!Array.isArray(last3EntriesSortedAsc) || last3EntriesSortedAsc.length < 3) return false;
 
   const [a, , c] = last3EntriesSortedAsc;
+
+  // If the latest status is NORMAL (healthy), do not trigger a malnutrition alert
+  if (c.status === "NORMAL") return false;
+
   const rank = (s) => (s === "SEVERE" ? 0 : s === "MODERATE" ? 1 : 2);
 
   const statusNotImproving = rank(c.status) <= rank(a.status);

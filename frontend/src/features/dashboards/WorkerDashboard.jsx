@@ -20,15 +20,25 @@ export default function WorkerDashboard() {
     return children.filter((c) => (c.name || "").toLowerCase().includes(s) || (c.childId || "").toLowerCase().includes(s));
   }, [children, q]);
 
+  const [offlineNotice, setOfflineNotice] = useState("");
+
   useEffect(() => {
     (async () => {
       setLoading(true);
       setError("");
+      setOfflineNotice("");
       try {
         const { data } = await axios.get("/children");
         setChildren(data.children || []);
+        localStorage.setItem("nutritracker_cached_children", JSON.stringify(data.children || []));
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load children");
+        const cached = localStorage.getItem("nutritracker_cached_children");
+        if (cached) {
+          setChildren(JSON.parse(cached));
+          setOfflineNotice("Offline Mode: Showing cached child list. You can still view profiles and record measurements.");
+        } else {
+          setError(err?.response?.data?.message || "Failed to load children");
+        }
       } finally {
         setLoading(false);
       }
@@ -59,6 +69,7 @@ export default function WorkerDashboard() {
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
+      {offlineNotice && <div className="alert alert-warning py-2 small">{offlineNotice}</div>}
       {loading ? (
         <div className="text-muted">Loading...</div>
       ) : (

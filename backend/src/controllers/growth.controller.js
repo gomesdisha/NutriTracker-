@@ -51,6 +51,19 @@ export async function addGrowthEntry(req, res) {
   child.latestMeasuredAt = entry.measuredAt;
   await child.save();
 
+  // Resolve previous alerts if child status improves
+  if (status === "NORMAL") {
+    await Alert.updateMany(
+      { childId: child._id, status: { $ne: "RESOLVED" } },
+      { $set: { status: "RESOLVED", resolvedAt: new Date() } }
+    );
+  } else if (status === "MODERATE") {
+    await Alert.updateMany(
+      { childId: child._id, type: "SEVERE_MALNUTRITION", status: { $ne: "RESOLVED" } },
+      { $set: { status: "RESOLVED", resolvedAt: new Date() } }
+    );
+  }
+
   // Alert: severe malnutrition
   if (status === "SEVERE") {
     await upsertOpenAlert({
