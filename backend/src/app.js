@@ -11,6 +11,7 @@ import growthRoutes from "./routes/growth.routes.js";
 import alertRoutes from "./routes/alert.routes.js";
 import supervisorRoutes from "./routes/supervisor.routes.js";
 import publicRoutes from "./routes/public.routes.js";
+import foodRoutes from "./routes/food.routes.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
 export function buildApp() {
@@ -36,6 +37,7 @@ export function buildApp() {
   app.use("/api/growth", growthRoutes);
   app.use("/api/alerts", alertRoutes);
   app.use("/api/supervisor", supervisorRoutes);
+  app.use("/api/food", foodRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

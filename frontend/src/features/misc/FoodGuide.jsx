@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Loader2, Sparkles, BookOpen, Globe } from "lucide-react";
+import axios from "../../api/axios.js";
 
 // Curated list of raw Indian cooking ingredients with ICMR/NIN nutritional values
 const LOCAL_INDIAN_INGREDIENTS = [
@@ -161,17 +162,7 @@ export default function FoodGuide() {
     setLoading(true);
     setError("");
     try {
-      const apiKey = "fn_Sg8ZhtUqVzMNh7ifq6HccqE3xcsPD2wQKnLir-MNbB0";
-      const res = await fetch(
-        `https://calorieapiadmin.com/api/v1/search/foods?q=${encodeURIComponent(searchTerm.trim())}`,
-        {
-          headers: {
-            "X-API-Key": apiKey
-          }
-        }
-      );
-      if (!res.ok) throw new Error("Search failed");
-      const data = await res.json();
+      const { data } = await axios.get(`/food/search?q=${encodeURIComponent(searchTerm.trim())}`);
       
       const mapped = (data.data || []).map((product) => {
         return {
@@ -193,7 +184,7 @@ export default function FoodGuide() {
         setError(`No local or Calorie API matches found for "${searchTerm}".`);
       }
     } catch (err) {
-      setError("Failed to fetch food details from Calorie API. Please check your internet connection.");
+      setError("Failed to fetch food details from Calorie API.");
     } finally {
       setLoading(false);
     }
@@ -284,7 +275,7 @@ export default function FoodGuide() {
 
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-bold mb-0 text-slate-800">
-          {isGlobalSearch ? "OpenFoodFacts Global Database Matches" : "ICMR Standard Raw Ingredients"} ({results.length})
+          {isGlobalSearch ? "Calorie API Global Database Matches" : "ICMR Standard Raw Ingredients"} ({results.length})
         </h6>
         {!isGlobalSearch && (
           <span className="badge bg-success-subtle text-success border border-success-subtle">
